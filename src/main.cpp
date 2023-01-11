@@ -3,20 +3,18 @@
 #include <fmt/core.h>
 #include <opencv2/opencv.hpp>
 
-float get_mean(const cv::Mat& img) {
+float get_mean(const cv::Mat &img) {
     cv::Scalar mean = cv::mean(img);
     return mean[0];
 }
 
-int main(int argc, char** argv )
-{
+int main(int argc, char **argv) {
 
     auto file_off = "near_off.tiff";
     auto file_on = "near_on.tiff";
 
-    cv::Mat image_off = cv::imread( file_off, cv::IMREAD_GRAYSCALE );
-    cv::Mat image_on = cv::imread( file_on, cv::IMREAD_GRAYSCALE );
-
+    cv::Mat image_off = cv::imread(file_off, cv::IMREAD_GRAYSCALE);
+    cv::Mat image_on = cv::imread(file_on, cv::IMREAD_GRAYSCALE);
 
     // auto mean_on = get_mean(image_on);
     // auto mean_off = get_mean(image_off);
@@ -24,6 +22,7 @@ int main(int argc, char** argv )
     // fmt::print("mean_on: {}\n", mean_on);
     // fmt::print("mean_off: {}\n", mean_off);
 
+    // image::ImageProcessSubMatInterp ipb;
     image::ImageProcessSubMat ipb;
     ipb.do_gauss = true;
 
@@ -44,7 +43,7 @@ int main(int argc, char** argv )
     cv::circle(image_on, p.p1, 20, cv::Scalar(255), 2);
     cv::circle(image_on, p.p2, 20, cv::Scalar(255), 2);
 
-    cv::namedWindow("Display Image diff", cv::WINDOW_AUTOSIZE );
+    cv::namedWindow("Display Image diff", cv::WINDOW_AUTOSIZE);
     cv::imshow("Display Image diff", image_on);
     cv::waitKey(0);
 

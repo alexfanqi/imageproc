@@ -2,14 +2,12 @@
 
 #include <image.hpp>
 
-struct Images
-{
+struct Images {
     cv::Mat image_off;
     cv::Mat image_on;
 };
 
-Images load()
-{
+Images load() {
     auto file_off = "near_off.tiff";
     auto file_on = "near_on.tiff";
 
@@ -19,10 +17,8 @@ Images load()
     return {image_off, image_on};
 }
 
-template<typename ImageProcess>
-static void BM_ImageProcess(benchmark::State &state)
-{
-
+template <typename ImageProcess>
+static void BM_ImageProcess(benchmark::State &state) {
 
     Images images = load();
 
@@ -40,3 +36,4 @@ static void BM_ImageProcess(benchmark::State &state)
 // Register the function as a benchmark
 BENCHMARK(BM_ImageProcess<image::ImageProcessBasic>)->Arg(0)->Arg(1);
 BENCHMARK(BM_ImageProcess<image::ImageProcessSubMat>)->Arg(0)->Arg(1);
+BENCHMARK(BM_ImageProcess<image::ImageProcessSubMatInterp>)->Arg(0)->Arg(1);

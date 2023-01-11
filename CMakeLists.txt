@@ -8,6 +8,8 @@ target_include_directories(image PUBLIC include)
 
 target_compile_features(image PUBLIC cxx_std_20)
 
+option(IMAGE_BENCHMARK "Build benchmark" OFF)
+
 find_package(fmt REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -22,8 +24,10 @@ add_executable(image_main src/main.cpp)
 
 target_link_libraries(image_main PRIVATE image)
 
-add_executable(image_bench src/bench.cpp)
+if (IMAGE_BENCHMARK)
+    add_executable(image_bench src/bench.cpp)
 
-find_package(benchmark REQUIRED)
+    find_package(benchmark REQUIRED)
+    target_link_libraries(image_bench PRIVATE image benchmark::benchmark benchmark::benchmark_main)
+endif()
 
-target_link_libraries(image_bench PRIVATE image benchmark::benchmark benchmark::benchmark_main)
