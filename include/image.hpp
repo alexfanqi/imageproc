@@ -11,12 +11,23 @@ template <typename T> struct Point2D {
 };
 
 // simple subpixel interpolation with 3x3 subrect and grey scale image
-struct GetSubPixel {
+struct LinearGradientInterp {
     cv::Point2d operator()(const cv::Mat &image, const cv::Rect &sub_rect);
     cv::Point2d operator()(const cv::Mat &image, const cv::Point &center) {
         return operator()(image, cv::Rect(center.x - 1, center.y - 1, 3, 3));
     }
     double inverse_linear_interp(cv::Point2d p1, cv::Point2d p2, double y);
+};
+
+struct CentroidInterp {
+    cv::Point2d operator()(const cv::Mat &image, const cv::Rect &sub_rect);
+    cv::Point2d operator()(const cv::Mat &image, const cv::Point &center) {
+        return operator()(image, cv::Rect(center.x - 1, center.y - 1, 3, 3));
+    }
+    void meshgrid(const cv::Mat &x, const cv::Mat &y, cv::Mat &X, cv::Mat &Y) {
+        cv::repeat(x.reshape(1, 1), y.total(), 1, X);
+        cv::repeat(y.reshape(1, 1).t(), 1, x.total(), Y);
+    }
 };
 
 struct ImageProcessBasic {
@@ -56,7 +67,7 @@ struct ImageProcessSubMatInterp {
     using InterpFunc =
         std::function<cv::Point2d(const cv::Mat &, const cv::Point &)>;
 
-    explicit ImageProcessSubMatInterp(InterpFunc func = GetSubPixel())
+    explicit ImageProcessSubMatInterp(InterpFunc func = LinearGradientInterp())
         : interp(func){};
 
     Point2D<double> operator()(const cv::Mat &image_off,
@@ -64,7 +75,7 @@ struct ImageProcessSubMatInterp {
     Point2D<double> get_location(const cv::Mat &image_off,
                                  const cv::Mat &image_on);
 
-  private:
+private:
     InterpFunc interp;
 };
 

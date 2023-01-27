@@ -22,8 +22,7 @@ int main(int argc, char **argv) {
     // fmt::print("mean_on: {}\n", mean_on);
     // fmt::print("mean_off: {}\n", mean_off);
 
-    // image::ImageProcessSubMatInterp ipb;
-    image::ImageProcessSubMat ipb;
+    auto ipb = image::ImageProcessSubMatInterp(image::CentroidInterp());
     ipb.do_gauss = true;
 
     // Warmup

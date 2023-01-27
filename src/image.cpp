@@ -3,19 +3,19 @@
 #include <image.hpp>
 namespace image {
 
-double GetSubPixel::inverse_linear_interp(cv::Point2d p1, cv::Point2d p2,
-                                          double y) {
+double LinearGradientInterp::inverse_linear_interp(cv::Point2d p1,
+                                                   cv::Point2d p2, double y) {
     if (p1.y == p2.y)
         return (p1.x + p2.x) / 2.0;
     return (y - p1.y) / (p2.y - p1.y) * (p2.x - p1.x) + p1.x;
 }
 
-cv::Point2d GetSubPixel::operator()(const cv::Mat &image,
-                                    const cv::Rect &sub_rect) {
+cv::Point2d LinearGradientInterp::operator()(const cv::Mat &image,
+                                             const cv::Rect &sub_rect) {
     assert(sub_rect.width == 3 && sub_rect.height == 3 &&
-           "GetSubPixel only defined for 3x3 subrect of image");
+           "LinearGradientInterp only defined for 3x3 subrect of image");
     assert(image.channels() == 1 &&
-           "GetSubPixel only defined for grey scale image");
+           "LinearGradientInterp only defined for grey scale image");
     const auto &img = image(sub_rect);
     cv::Mat sumx, sumy;
     cv::reduce(img, sumx, 0, cv::REDUCE_SUM, cv::DataType<int>::type);
@@ -31,6 +31,26 @@ cv::Point2d GetSubPixel::operator()(const cv::Mat &image,
     };
     return cv::Point2d(interp(sumx), interp(sumy)) +
            static_cast<cv::Point2d>(sub_rect.tl());
+}
+
+cv::Point2d CentroidInterp::operator()(const cv::Mat &image,
+                                       const cv::Rect &sub_rect) {
+    assert(image.channels() == 1 &&
+           "CentroidInterp only defined for grey scale image");
+    cv::Mat img = image(sub_rect);
+    cv::Mat gridx, gridy;
+    cv::Mat XX, YY;
+    double x, y;
+    for (int i = 0; i != sub_rect.width; i++)
+        gridx.push_back(i);
+    for (int i = 0; i != sub_rect.height; i++)
+        gridy.push_back(i);
+    meshgrid(gridx, gridy, XX, YY);
+    XX.convertTo(XX, img.type());
+    YY.convertTo(YY, img.type());
+    x = double(cv::sum(XX.mul(img))[0]) / cv::sum(img)[0];
+    y = double(cv::sum(YY.mul(img))[0]) / cv::sum(img)[0];
+    return cv::Point2d(x, y) + static_cast<cv::Point2d>(sub_rect.tl());
 }
 
 Point2D<int> ImageProcessBasic::operator()(const cv::Mat &image_off,
